@@ -13,6 +13,7 @@ app.use(cors());
 // Allows node to find static content
 app.use(express.static( __dirname + '/public'));
 
+var numshort = 1;
 
 // connect to mongodb
 // mongoose.connect(process.env.MONGOLAB_URI);
@@ -40,14 +41,25 @@ app.get('/api/shorturl/new/:original_url(*)', async (req, res, next) => {
     Following is the query to get last inserted document 
     db.getLastInsertedDocument.find({}).sort({_id:-1}).limit(1);
     */
-    
-    const count = await ShortUrl.find().count(function (err, count) {
+
+    // const count = await ShortUrl.find().count(function (err, count) {
+    //     if (err) {
+    //         res.json({ error: "error reading the database" });
+    //     } else {
+    //         return count;
+    //     }
+    // });
+
+    var shortUrl = await ShortUrl.findOne({}, {}, { sort: { 'createdAt': -1 } }, function (err, shortUrl) {
         if (err) {
             res.json({ error: "error reading the database" });
-        } else {
-            return count;
         }
+        return shortUrl;
     });
+
+    if (shortUrl) {
+        numshort = shortUrl.short_url + 1;
+    }
 
     var { original_url } = req.params // ES6 
     const regexUrl =  /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
@@ -55,7 +67,7 @@ app.get('/api/shorturl/new/:original_url(*)', async (req, res, next) => {
                 
         const data = new ShortUrl({
             original_url: original_url,
-            short_url: count + 1
+            short_url: numshort
         });
 
         await data.save();
@@ -84,6 +96,20 @@ app.get('/api/shorturl/:short_url', async (req, res, next) => {
         }
     });
 });
+
+
+app.get('/api/shorturl', async (req, res, next) => {
+    await ShortUrl.find(function (err, shortUrls) {
+        if (err) {
+            // something failed
+            // 500 Internal Server Error
+            console.log('something failed, 500 Internal Server Error');
+            next(err);
+        }
+        res.send(shortUrls);
+    })
+});
+
 
 // your first API endpoint...
 app.get("/api/hello", function (req, res) {
