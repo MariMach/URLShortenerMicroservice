@@ -1,7 +1,7 @@
 # URLShortenerMicroservice
 APIs and Microservices Projects - URL Shortener Microservice
 
-(Glitch deploy)[https://mariam-machaallah-freecodecamp-myproject3.glitch.me/]
+[Glitch deploy](https://mariam-machaallah-freecodecamp-myproject3.glitch.me/)
 
 User Stories :
 1. I can POST a URL to [project_url]/api/shorturl/new and I will receive a shortened URL in the JSON response.
